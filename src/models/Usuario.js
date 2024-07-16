@@ -1,6 +1,7 @@
 // Importa la conexión a la base de datos
 const db = require('../dbConfig');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 // Función para obtener todos los usuarios
 const obtenerUsuarios = (callback) => {
@@ -48,11 +49,43 @@ const obtenerUsuarioPorEmail = (email, callback) => {
     });
 };
 
+// Función para verificar las credenciales del usuario al iniciar sesión
+const autenticarUsuario = (email, password, callback) => {
+    obtenerUsuarioPorEmail(email, (err, usuario) => {
+        if (err) {
+            return callback(err);
+        }
+        if (!usuario) {
+            return callback(null, false, { message: 'Usuario no encontrado' });
+        }
+
+        // Compara la contraseña proporcionada con la almacenada en la base de datos
+        bcrypt.compare(password, usuario.password, (err, result) => {
+            if (err) {
+                return callback(err);
+            }
+            if (!result) {
+                return callback(null, false, { message: 'Contraseña incorrecta' });
+            }
+
+            // Genera un token JWT válido por 1 hora (3600 segundos)
+            const token = jwt.sign(
+                { id: usuario.id, email: usuario.email },
+                process.env.JWT_SECRET,
+                { expiresIn: '1h' }
+            );
+
+            return callback(null, usuario, token);
+        });
+    });
+};
+
 // Exporta las funciones del modelo de usuario
 module.exports = {
     obtenerUsuarios,
     crearUsuario,
     actualizarUsuario,
     eliminarUsuario,
-    obtenerUsuarioPorEmail  // Asegúrate de incluir esta función en la exportación
+    obtenerUsuarioPorEmail,
+    autenticarUsuario
 };
