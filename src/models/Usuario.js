@@ -34,10 +34,25 @@ const eliminarUsuario = (idUsuario, callback) => {
     db.query('DELETE FROM users WHERE id = ?', idUsuario, callback);
 };
 
+// Función para obtener un usuario por su correo electrónico
+const obtenerUsuarioPorEmail = (email, callback) => {
+    db.query('SELECT * FROM users WHERE email = ?', email, (err, results) => {
+        if (err) {
+            return callback(err);
+        }
+        if (results.length > 0) {
+            return callback(null, results[0]);
+        } else {
+            return callback(null, null);
+        }
+    });
+};
+
 // Exporta las funciones del modelo de usuario
 module.exports = {
     obtenerUsuarios,
     crearUsuario,
     actualizarUsuario,
-    eliminarUsuario
+    eliminarUsuario,
+    obtenerUsuarioPorEmail  // Asegúrate de incluir esta función en la exportación
 };
