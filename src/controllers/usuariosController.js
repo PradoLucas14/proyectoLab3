@@ -16,15 +16,10 @@ const obtenerUsuarios = (req, res) => {
 
 // Controlador para crear un nuevo usuario
 const crearUsuario = (req, res) => {
-    const nuevoUsuario = {
-        username: req.body.username,
-        email: req.body.email,
-        password: req.body.password // Asigna la contraseña sin encriptar desde la solicitud
-        // Agrega otros campos del usuario según tu esquema de base de datos
-    };
+    const { username, email, password } = req.body;
 
-    // Verifica si el correo electrónico ya está registrado
-    Usuario.obtenerUsuarioPorEmail(nuevoUsuario.email, (err, usuarioExistente) => {
+    // Verificar si el correo electrónico ya está registrado
+    Usuario.obtenerUsuarioPorEmail(email, (err, usuarioExistente) => {
         if (err) {
             console.error('Error al verificar el correo electrónico:', err);
             return res.status(500).send('Error al verificar el correo electrónico en la base de datos');
@@ -36,13 +31,28 @@ const crearUsuario = (req, res) => {
         }
 
         // Si el correo electrónico no está registrado, procede a crear el usuario
-        Usuario.crearUsuario(nuevoUsuario, (err, result) => {
+        // Encriptar la contraseña antes de almacenarla en la base de datos
+        bcrypt.hash(password, 10, (err, hashedPassword) => {
             if (err) {
-                console.error('Error al crear el usuario:', err);
-                res.status(500).send('Error al crear el usuario en la base de datos');
-            } else {
-                res.status(201).send('Usuario creado exitosamente');
+                console.error('Error al encriptar la contraseña:', err);
+                return res.status(500).send('Error al crear el usuario');
             }
+
+            const nuevoUsuario = {
+                username,
+                email,
+                password: hashedPassword // Guarda la contraseña encriptada
+                // Agrega otros campos del usuario según tu esquema de base de datos
+            };
+
+            Usuario.crearUsuario(nuevoUsuario, (err, result) => {
+                if (err) {
+                    console.error('Error al crear el usuario:', err);
+                    res.status(500).send('Error al crear el usuario en la base de datos');
+                } else {
+                    res.status(201).send('Usuario creado exitosamente');
+                }
+            });
         });
     });
 };
@@ -50,9 +60,11 @@ const crearUsuario = (req, res) => {
 // Controlador para actualizar un usuario
 const actualizarUsuario = (req, res) => {
     const idUsuario = req.params.id;
+    const { username, email } = req.body;
+
     const datosUsuario = {
-        username: req.body.username,
-        email: req.body.email
+        username,
+        email
         // Puedes incluir más campos para actualizar según tu esquema
     };
 

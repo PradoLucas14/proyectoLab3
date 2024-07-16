@@ -6,7 +6,6 @@ const express = require('express');
 const db = require('./src/dbConfig.js'); // Importa la configuración de la base de datos desde src/dbConfig.js
 const usuariosRoutes = require('./src/routes/usuariosRoutes'); // Importa las rutas de usuarios desde usuariosRoutes.js
 
-
 // Crea una instancia de Express
 const app = express();
 
@@ -14,11 +13,7 @@ const app = express();
 app.use(express.json()); // Para procesar JSON en las solicitudes POST
 app.use(express.urlencoded({ extended: true })); // Para procesar datos de formularios HTML
 
-// Ejemplo de ruta básica
-app.get('/', (req, res) => {
-    res.send('¡Hola Mundo desde Express!');
-});
-
+// Rutas protegidas (requieren verificación de token)
 app.use('/api', usuariosRoutes);
 
 // Inicia el servidor HTTP
