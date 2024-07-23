@@ -14,7 +14,7 @@ app.use(express.json()); // Para procesar JSON en las solicitudes POST
 app.use(express.urlencoded({ extended: true })); // Para procesar datos de formularios HTML
 
 // Rutas protegidas (requieren verificación de token)
-app.use('/api', usuariosRoutes);
+app.use('/api/usuarios', usuariosRoutes);
 
 // Inicia el servidor HTTP
 const PORT = process.env.PORT || 3000;

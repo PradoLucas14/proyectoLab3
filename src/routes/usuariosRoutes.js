@@ -1,23 +1,21 @@
 const express = require('express');
 const router = express.Router();
-
-// Importa el controlador de usuarios
 const usuariosController = require('../controllers/usuariosController');
+const authMiddleware = require('../middlewares/authMiddleware');
 
 // Ruta GET para obtener todos los usuarios
-router.get('/usuarios', usuariosController.obtenerUsuarios);
+router.get('/', authMiddleware, usuariosController.obtenerUsuarios);
 
-// Ruta POST para crear un nuevo usuario
-router.post('/usuarios', usuariosController.crearUsuario);
+// Ruta POST para crear un nuevo usuario, solo accesible para usuarios autenticados
+router.post('/', authMiddleware, usuariosController.crearUsuario);
 
 // Ruta PATCH para actualizar un usuario específico
-router.patch('/usuarios/:id', usuariosController.actualizarUsuario);
+router.patch('/:id', authMiddleware, usuariosController.actualizarUsuario);
 
 // Ruta DELETE para eliminar un usuario específico
-router.delete('/usuarios/:id', usuariosController.eliminarUsuario);
+router.delete('/:id', authMiddleware, usuariosController.eliminarUsuario);
 
 // Ruta POST para iniciar sesión
-router.post('/usuarios/login', usuariosController.iniciarSesion);
+router.post('/login', usuariosController.iniciarSesion);
 
-// Exporta el enrutador de usuarios
 module.exports = router;
