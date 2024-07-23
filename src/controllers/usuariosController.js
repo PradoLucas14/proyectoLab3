@@ -18,6 +18,13 @@ const obtenerUsuarios = (req, res) => {
 const crearUsuario = (req, res) => {
     const { username, email, password } = req.body;
 
+    // Validación del nombre de usuario
+    const usernameRegex = /^[a-zA-Z0-9]{6,}$/;
+
+    if (!usernameRegex.test(username)) {
+        return res.status(400).send('El nombre de usuario debe tener al menos 6 caracteres y no puede incluir símbolos.');
+    }
+
     // Verificar si el correo electrónico ya está registrado
     Usuario.obtenerUsuarioPorEmail(email, (err, usuarioExistente) => {
         if (err) {
@@ -44,12 +51,20 @@ const crearUsuario = (req, res) => {
     });
 };
 
+
 // Controlador para actualizar un usuario
 const actualizarUsuario = (req, res) => {
     const idUsuario = req.params.id;
-    const { username, email } = req.body;
+    const { username } = req.body;  // Solo se extrae el nombre de usuario
 
-    const datosUsuario = { username, email };
+    // Validación del nombre de usuario
+    const usernameRegex = /^[a-zA-Z0-9]{6,}$/;
+    if (username && !usernameRegex.test(username)) {
+        return res.status(400).send('El nombre de usuario debe tener al menos 6 caracteres y no puede incluir símbolos.');
+    }
+
+    // Solo incluye el nombre de usuario en los datos a actualizar
+    const datosUsuario = { username };
 
     Usuario.actualizarUsuario(idUsuario, datosUsuario, (err, result) => {
         if (err) {
