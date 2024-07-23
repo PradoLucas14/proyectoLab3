@@ -1,4 +1,3 @@
-// Importa Express y crea un enrutador
 const express = require('express');
 const router = express.Router();
 
@@ -16,6 +15,9 @@ router.patch('/usuarios/:id', usuariosController.actualizarUsuario);
 
 // Ruta DELETE para eliminar un usuario específico
 router.delete('/usuarios/:id', usuariosController.eliminarUsuario);
+
+// Ruta POST para iniciar sesión
+router.post('/usuarios/login', usuariosController.iniciarSesion);
 
 // Exporta el enrutador de usuarios
 module.exports = router;

@@ -1,6 +1,6 @@
-// Importa el modelo de usuario
 const Usuario = require('../models/Usuario');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 // Controlador para obtener todos los usuarios
 const obtenerUsuarios = (req, res) => {
@@ -16,15 +16,10 @@ const obtenerUsuarios = (req, res) => {
 
 // Controlador para crear un nuevo usuario
 const crearUsuario = (req, res) => {
-    const nuevoUsuario = {
-        username: req.body.username,
-        email: req.body.email,
-        password: req.body.password // Asigna la contraseña sin encriptar desde la solicitud
-        // Agrega otros campos del usuario según tu esquema de base de datos
-    };
+    const { username, email, password } = req.body;
 
-    // Verifica si el correo electrónico ya está registrado
-    Usuario.obtenerUsuarioPorEmail(nuevoUsuario.email, (err, usuarioExistente) => {
+    // Verificar si el correo electrónico ya está registrado
+    Usuario.obtenerUsuarioPorEmail(email, (err, usuarioExistente) => {
         if (err) {
             console.error('Error al verificar el correo electrónico:', err);
             return res.status(500).send('Error al verificar el correo electrónico en la base de datos');
@@ -36,6 +31,8 @@ const crearUsuario = (req, res) => {
         }
 
         // Si el correo electrónico no está registrado, procede a crear el usuario
+        const nuevoUsuario = { username, email, password };
+
         Usuario.crearUsuario(nuevoUsuario, (err, result) => {
             if (err) {
                 console.error('Error al crear el usuario:', err);
@@ -50,11 +47,9 @@ const crearUsuario = (req, res) => {
 // Controlador para actualizar un usuario
 const actualizarUsuario = (req, res) => {
     const idUsuario = req.params.id;
-    const datosUsuario = {
-        username: req.body.username,
-        email: req.body.email
-        // Puedes incluir más campos para actualizar según tu esquema
-    };
+    const { username, email } = req.body;
+
+    const datosUsuario = { username, email };
 
     Usuario.actualizarUsuario(idUsuario, datosUsuario, (err, result) => {
         if (err) {
@@ -80,10 +75,29 @@ const eliminarUsuario = (req, res) => {
     });
 };
 
+// Controlador para iniciar sesión
+const iniciarSesion = (req, res) => {
+    const { email, password } = req.body;
+
+    Usuario.autenticarUsuario(email, password, (err, usuario, token) => {
+        if (err) {
+            console.error('Error al autenticar el usuario:', err);
+            return res.status(500).send('Error al iniciar sesión');
+        }
+
+        if (!usuario) {
+            return res.status(400).send('Correo electrónico o contraseña incorrectos');
+        }
+
+        res.json({ token });
+    });
+};
+
 // Exporta las funciones del controlador de usuarios
 module.exports = {
     obtenerUsuarios,
     crearUsuario,
     actualizarUsuario,
-    eliminarUsuario
+    eliminarUsuario,
+    iniciarSesion
 };
