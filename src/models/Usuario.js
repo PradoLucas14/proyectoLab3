@@ -1,4 +1,3 @@
-// Importa la conexión a la base de datos
 const db = require('../dbConfig');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -16,10 +15,10 @@ const crearUsuario = (nuevoUsuario, callback) => {
             console.error('Error al encriptar la contraseña:', err);
             return callback(err);
         }
-        
+
         // Reemplaza la contraseña sin encriptar con el hash
         nuevoUsuario.password = hash;
-        
+
         // Inserta el nuevo usuario en la base de datos
         db.query('INSERT INTO users SET ?', nuevoUsuario, callback);
     });
