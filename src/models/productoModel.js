@@ -32,11 +32,17 @@ const eliminarProducto = (id, callback) => {
     db.query('DELETE FROM productos WHERE id = ?', id, callback);
 };
 
+// Función para obtener un producto por su nombre
+const obtenerProductoPorNombre = (nombre, callback) => {
+    db.query('SELECT * FROM productos WHERE nombre = ?', [nombre], callback);
+};
+
 // Exporta las funciones del modelo de productos
 module.exports = {
     obtenerProductos,
     obtenerProductoPorId,
     crearProducto,
     actualizarProducto,
-    eliminarProducto
+    eliminarProducto,
+    obtenerProductoPorNombre 
 };
